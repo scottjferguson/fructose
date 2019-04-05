@@ -7,7 +7,7 @@
 [![MyGet Release](https://img.shields.io/myget/relay-dev/v/Relay.Core.Plugins.svg)](https://www.myget.org/feed/relay-dev/package/nuget/Relay.Core.Plugins)
 [![License](https://img.shields.io/github/license/relay-dev/core-plugins.svg)](https://github.com/relay-dev/core-plugins/blob/master/LICENSE)
 
-A Customer management API platform
+A Customer management microservice platform
 
 > <sup>Fructose is a set of microservices that facilitates common customer management tasks. The microservices expose a RESTful API that requires token-based header authentication. Each domain also supports handling events raised within the platform.</sup>
 >
