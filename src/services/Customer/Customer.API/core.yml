@@ -1,0 +1,16 @@
+﻿DataAccess:
+  Databases:
+    - ConnectionString: Data Source=DESKTOP-NKUJKQ4\SQLEXPRESS;Integrated Security=True;Persist Security Info=False;Pooling=False;MultipleActiveResultSets=False;Encrypt=False;TrustServerCertificate=True
+      DatabaseType: SQLServer
+      Name: Fructose
+  Repositories:
+    - DbContext: InMemoryDbContext
+      Name: DbContextRepository
+      UnitOfWork: DbContextUnitOfWork
+IoCContainer:
+  Plugins:
+    - Name: CoreProviders
+      Type: null
+    - Name: CoreDataAccess
+      Type: null
+  Type: CastleWindsor

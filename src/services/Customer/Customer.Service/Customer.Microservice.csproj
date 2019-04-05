@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="6.0.0" />
+    <PackageReference Include="Relay.Core" Version="1.0.60" />
+    <PackageReference Include="Relay.Core.Plugins" Version="1.0.9" />
+    <PackageReference Include="Relay.Core.Plugins.AutoMapper" Version="1.0.9" />
+    <PackageReference Include="Relay.Core.Plugins.AutoMapper.Data" Version="1.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Fructose.Common\Fructose.Common.csproj" />
+    <ProjectReference Include="..\..\..\Fructose.EventLog.EntityFramework\Fructose.EventLog.EntityFramework.csproj" />
+    <ProjectReference Include="..\Customer.Domain\Customer.Domain.csproj" />
+    <ProjectReference Include="..\Customer.Infrastructure\Customer.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Map\FromDomain\" />
+  </ItemGroup>
+
+</Project>
