@@ -241,4 +241,7 @@
   <ItemGroup>
     <PostDeploy Include="scripts\Script.PostDeployment.LookupData.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="scripts\fructose.sql" />
+  </ItemGroup>
 </Project>
