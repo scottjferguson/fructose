@@ -1,9 +1,11 @@
 ﻿using Customer.API.Extensions;
 using Customer.Infrastructure.ORM.EntityFramework;
 using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -16,20 +18,7 @@ namespace Customer.API
     {
         public static void Main(string[] args)
         {
-            // TODO: SF: Uncomment
-            //CreateWebHostBuilder(args)
-            //    .MigrateDbContext<FructoseContext>((context, services) =>
-            //    {
-            //        var env = services.GetService<IHostingEnvironment>();
-            //        var settings = services.GetService<IOptions<OrderingSettings>>();
-            //        var logger = services.GetService<ILogger<OrderingContextSeed>>();
-
-            //        new OrderingContextSeed()
-            //            .SeedAsync(context, env, settings, logger)
-            //            .Wait();
-            //    })
-            //    .MigrateDbContext<IntegrationEventLogContext>((_, __) => { })
-            //    .Run();
+            CreateWebHostBuilder(args).Run();
         }
 
         public static IWebHost CreateWebHostBuilder(string[] args)
