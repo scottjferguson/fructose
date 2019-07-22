@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using AutoMapper;
 using Core.Application;
 using Customer.Microservice.Application;
 using Fructose.Common.EventBus;
@@ -26,7 +27,6 @@ using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Swagger;
-using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
@@ -41,8 +41,7 @@ namespace Customer.API
         {
             Configuration = configuration;
         }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
@@ -51,7 +50,6 @@ namespace Customer.API
             }
             else
             {
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -96,13 +94,11 @@ namespace Customer.API
             ConfigureEventBus(app);
             ConfigureMicroservice(env);
         }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
+        
         public void ConfigureServices(IServiceCollection services)
         {
             RegisterAppInsights(services);
-
-            // Add framework services.
+            
             services.AddMvc(options =>
             {
                 options.Filters.Add(typeof(HttpGlobalExceptionFilter));
@@ -133,7 +129,6 @@ namespace Customer.API
 
                 return ConnectionMultiplexer.Connect(configuration);
             });
-
 
             if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
