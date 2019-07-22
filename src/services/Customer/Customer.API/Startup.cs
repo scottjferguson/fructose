@@ -27,6 +27,7 @@ using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Swagger;
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
@@ -113,6 +114,8 @@ namespace Customer.API
             services.AddCustomHealthCheck(Configuration);
             
             services.Configure<CustomerSettings>(Configuration);
+
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             //By connecting here we are making sure that our service
             //cannot start until redis is ready. This might slow down startup,
