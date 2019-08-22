@@ -1,10 +1,16 @@
 ﻿using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using AutoMapper;
 using Core.Application;
+using Customer.API.Infrastructure.Filters;
+using Customer.API.Infrastructure.Middlewares;
+using Customer.API.IntegrationEvents.EventHandling;
+using Customer.API.IntegrationEvents.Events;
+using Customer.Microservice;
 using Customer.Microservice.Application;
+using Customer.Microservice.Impl;
 using Fructose.Common.EventBus;
 using Fructose.Common.EventBus.Impl;
-using Fructose.Common.Infrastructure.Filter;
 using Fructose.EventBus.AzureServiceBus;
 using Fructose.EventBus.AzureServiceBus.Impl;
 using Fructose.EventBus.RabbitMQ;
@@ -96,7 +102,7 @@ namespace Customer.API
             ConfigureMicroservice(env);
         }
         
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             RegisterAppInsights(services);
             
@@ -200,9 +206,8 @@ namespace Customer.API
                         { "Customer", "Customer API" }
                     }
                 });
-
-                // TODO: SF: Uncomment
-                //options.OperationFilter<AuthorizeCheckOperationFilter>();
+                
+                options.OperationFilter<AuthorizeCheckOperationFilter>();
             });
 
             services.AddCors(options =>
@@ -215,18 +220,14 @@ namespace Customer.API
                     .AllowCredentials());
             });
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            // TODO: SF: Uncomment
-            //services.AddTransient<ICustomerRepository, RedisCustomerRepository>();
-            //services.AddTransient<IIdentityService, IdentityService>();
+            services.AddTransient<ICustomerService, CustomerServiceMediator>();
 
             services.AddOptions();
 
             var container = new ContainerBuilder();
-            // TODO: SF: Uncomment
-            //container.Populate(services);
-
-            // TODO: SF: Uncomment
-            //return new AutofacServiceProvider(container.Build());
+            container.Populate(services);
+            
+            return new AutofacServiceProvider(container.Build());
         }
 
         private void RegisterAppInsights(IServiceCollection services)
@@ -234,18 +235,8 @@ namespace Customer.API
             services.AddApplicationInsightsTelemetry(Configuration);
             var orchestratorType = Configuration.GetValue<string>("OrchestratorType");
 
-            if (orchestratorType?.ToUpper() == "K8S")
-            {
-                // Enable K8s telemetry initializer
-                // TODO: SF: Uncomment
-                //services.EnableKubernetes();
-            }
-            if (orchestratorType?.ToUpper() == "SF")
-            {
-                // Enable SF telemetry initializer
-                services.AddSingleton<ITelemetryInitializer>((serviceProvider) =>
-                    new FabricTelemetryInitializer());
-            }
+            // Enable SF telemetry initializer
+            services.AddSingleton<ITelemetryInitializer>((serviceProvider) => new FabricTelemetryInitializer());
         }
 
         private void ConfigureAuthService(IServiceCollection services)
@@ -272,8 +263,7 @@ namespace Customer.API
         {
             if (Configuration.GetValue<bool>("UseLoadTest"))
             {
-                // TODO: SF: Uncomment
-                //app.UseMiddleware<ByPassAuthMiddleware>();
+                app.UseMiddleware<ByPassAuthMiddleware>();
             }
 
             app.UseAuthentication();
@@ -315,19 +305,15 @@ namespace Customer.API
             }
 
             services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
-
-            // TODO: SF: Uncomment
-            //services.AddTransient<ProductPriceChangedIntegrationEventHandler>();
-            //services.AddTransient<OrderStartedIntegrationEventHandler>();
+            
+            services.AddTransient<CustomerEnrollmentIntegrationEventHandler>();
         }
 
         private void ConfigureEventBus(IApplicationBuilder app)
         {
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
-
-            // TODO: SF: Uncomment
-            //eventBus.Subscribe<ProductPriceChangedIntegrationEvent, ProductPriceChangedIntegrationEventHandler>();
-            //eventBus.Subscribe<OrderStartedIntegrationEvent, OrderStartedIntegrationEventHandler>();
+            
+            eventBus.Subscribe<CustomerEnrollmentIntegrationEvent, CustomerEnrollmentIntegrationEventHandler>();
         }
 
         private void ConfigureMicroservice(IHostingEnvironment env)
@@ -389,32 +375,26 @@ namespace Customer.API
             var hcBuilder = services.AddHealthChecks();
 
             hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy());
-
-            // TODO: SF: Uncomment
-            //hcBuilder
-            //    .AddRedis(
-            //        configuration["ConnectionString"],
-            //        name: "redis-check",
-            //        tags: new string[] { "redis" });
+            
+            hcBuilder.AddRedis(
+                configuration["ConnectionString"],
+                name: "redis-check",
+                tags: new string[] { "redis" });
 
             if (configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
-                // TODO: SF: Uncomment
-                //hcBuilder
-                //    .AddAzureServiceBusTopic(
-                //        configuration["EventBusConnection"],
-                //        topicName: "eshop_event_bus",
-                //        name: "customer-servicebus-check",
-                //        tags: new string[] { "servicebus" });
+                hcBuilder.AddAzureServiceBusTopic(
+                    configuration["EventBusConnection"],
+                    topicName: "eshop_event_bus",
+                    name: "customer-servicebus-check",
+                    tags: new string[] { "servicebus" });
             }
             else
             {
-                // TODO: SF: Uncomment
-                //hcBuilder
-                //    .AddRabbitMQ(
-                //        $"amqp://{configuration["EventBusConnection"]}",
-                //        name: "customer-rabbitmqbus-check",
-                //        tags: new string[] { "rabbitmqbus" });
+                hcBuilder.AddRabbitMQ(
+                    $"amqp://{configuration["EventBusConnection"]}",
+                    name: "customer-rabbitmqbus-check",
+                    tags: new string[] { "rabbitmqbus" });
             }
 
             return services;
